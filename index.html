@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kitty — the best free Roblox executor</title>
+<meta name="description" content="Kitty is the best free Roblox executor on the market. No keys, no payments, no bullshit. Free forever." />
+<style>
+  :root {
+    --bg: #0a0c0b;
+    --panel: #101412;
+    --line: #1d2420;
+    --green: #3ddc84;
+    --red: #ff5a63;
+    --text: #e8ede9;
+    --dim: #8b968f;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI Variable Text", Inter, Segoe UI, system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+  ::selection { background: rgba(61,220,132,.25); }
+
+  /* ambient glow + faint grid */
+  .glow {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(900px 480px at 50% -10%, rgba(61,220,132,.10), transparent 70%),
+      radial-gradient(700px 400px at 85% 110%, rgba(255,90,99,.05), transparent 70%);
+  }
+  .grid {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .5;
+    background-image:
+      linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 80%);
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- nav ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    backdrop-filter: blur(14px);
+    background: rgba(10,12,11,.72);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: -.02em; }
+  .brand svg { width: 22px; height: 20px; }
+  .brand .ver { color: var(--dim); font-weight: 500; font-size: 12.5px; margin-left: 2px; }
+  .nav-links { display: flex; align-items: center; gap: 26px; }
+  .nav-links a { color: var(--dim); text-decoration: none; font-size: 14px; transition: color .15s; }
+  .nav-links a:hover { color: var(--text); }
+
+  /* ---------- buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    background: var(--green); color: #08130c; font-weight: 700; font-size: 14.5px;
+    padding: 10px 20px; border-radius: 9px; text-decoration: none;
+    transition: transform .12s ease, box-shadow .12s ease, filter .12s;
+    box-shadow: 0 0 0 rgba(61,220,132,0);
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(61,220,132,.28); filter: brightness(1.05); }
+  .btn:active { transform: translateY(0); }
+  .btn.big { font-size: 16px; padding: 14px 30px; border-radius: 11px; }
+  .btn svg { width: 17px; height: 17px; }
+
+  /* ---------- hero ---------- */
+  header { padding: 96px 0 64px; text-align: center; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--line); background: rgba(16,20,18,.7);
+    color: var(--dim); font-size: 13px; padding: 6px 14px; border-radius: 999px; margin-bottom: 28px;
+  }
+  .badge b { color: var(--green); font-weight: 600; }
+  h1 {
+    font-size: clamp(38px, 6.4vw, 68px); line-height: 1.04; letter-spacing: -.035em; font-weight: 800;
+  }
+  h1 .grad {
+    background: linear-gradient(92deg, var(--green), #7cebb4 55%, var(--red));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .sub { margin: 22px auto 0; max-width: 620px; color: var(--dim); font-size: 17.5px; line-height: 1.6; }
+  .sub strong { color: var(--text); font-weight: 600; }
+  .slogan { margin-top: 14px; font-size: 15px; letter-spacing: .02em; color: var(--dim); }
+  .slogan em { font-style: normal; color: var(--red); font-weight: 600; }
+  .hero-cta { margin-top: 38px; display: flex; gap: 14px; justify-content: center; align-items: center; flex-wrap: wrap; }
+  .ghost {
+    color: var(--dim); text-decoration: none; font-size: 14px; border: 1px solid var(--line);
+    padding: 13px 22px; border-radius: 11px; transition: color .15s, border-color .15s;
+  }
+  .ghost:hover { color: var(--text); border-color: #2c3630; }
+
+  /* ---------- status strip ---------- */
+  .status-card {
+    margin-top: 70px; border: 1px solid var(--line); border-radius: 14px;
+    background: linear-gradient(180deg, rgba(16,20,18,.9), rgba(13,16,14,.9));
+    overflow: hidden;
+  }
+  .status-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px; border-bottom: 1px solid var(--line);
+    font-family: Consolas, "Cascadia Mono", monospace; font-size: 13px; color: var(--dim);
+  }
+  .status-head .dot-live { display: inline-flex; align-items: center; gap: 8px; color: var(--green); font-weight: 600; }
+  .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--green); position: relative; }
+  .pulse::after {
+    content: ""; position: absolute; inset: -4px; border-radius: 50%;
+    border: 1.5px solid var(--green); opacity: .7; animation: pulse 1.8s ease-out infinite;
+  }
+  @keyframes pulse { 0% { transform: scale(.6); opacity: .8; } 100% { transform: scale(1.5); opacity: 0; } }
+  .status-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+  .stat { padding: 20px; border-right: 1px solid var(--line); font-family: Consolas, "Cascadia Mono", monospace; }
+  .stat:last-child { border-right: none; }
+  .stat .k { font-size: 11.5px; text-transform: uppercase; letter-spacing: .12em; color: var(--dim); margin-bottom: 9px; }
+  .stat .v { font-size: 19px; font-weight: 700; }
+  .stat .v.ok { color: var(--green); }
+  .stat .v.warn { color: #ffd166; }
+  .stat .note { font-size: 12px; color: var(--dim); margin-top: 5px; }
+
+  /* ---------- features ---------- */
+  section { padding: 84px 0 0; }
+  .sec-title { font-size: 30px; letter-spacing: -.03em; font-weight: 800; text-align: center; }
+  .sec-sub { text-align: center; color: var(--dim); margin-top: 10px; font-size: 15.5px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 40px; }
+  .card {
+    border: 1px solid var(--line); border-radius: 13px; background: rgba(16,20,18,.55);
+    padding: 22px; transition: transform .15s ease, border-color .15s ease, background .15s;
+  }
+  .card:hover { transform: translateY(-3px); border-color: #2c3a31; background: rgba(18,23,20,.75); }
+  .cards.four { grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); }
+  .card .ico {
+    width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center;
+    background: rgba(61,220,132,.10); border: 1px solid rgba(61,220,132,.22); margin-bottom: 15px;
+  }
+  .card .ico svg { width: 18px; height: 18px; stroke: var(--green); fill: none; stroke-width: 1.8; }
+  .card h3 { font-size: 16px; letter-spacing: -.01em; margin-bottom: 7px; }
+  .card p { color: var(--dim); font-size: 14px; line-height: 1.55; }
+
+  /* ---------- faq ---------- */
+  .faq { max-width: 720px; margin: 40px auto 0; display: flex; flex-direction: column; gap: 10px; }
+  .qa {
+    border: 1px solid var(--line); border-radius: 12px; background: rgba(16,20,18,.55);
+    overflow: hidden; transition: border-color .15s;
+  }
+  .qa:hover { border-color: #2c3a31; }
+  .qa summary {
+    list-style: none; cursor: pointer; padding: 17px 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    font-weight: 600; font-size: 15.5px; letter-spacing: -.01em;
+  }
+  .qa summary::-webkit-details-marker { display: none; }
+  .qa summary .chev {
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(61,220,132,.08); border: 1px solid rgba(61,220,132,.2);
+    color: var(--green); font-size: 15px; line-height: 1; transition: transform .2s ease;
+  }
+  .qa[open] summary .chev { transform: rotate(45deg); }
+  .qa .ans {
+    padding: 0 20px 17px; color: var(--dim); font-size: 14.5px; line-height: 1.6;
+    animation: faqIn .22s ease;
+  }
+  .qa .ans strong { color: var(--text); font-weight: 600; }
+  @keyframes faqIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+  /* ---------- final cta ---------- */
+  .cta-final { text-align: center; padding: 96px 0 40px; }
+  .cta-final h2 { font-size: clamp(30px, 4.6vw, 46px); letter-spacing: -.03em; font-weight: 800; }
+  .cta-final p { color: var(--dim); margin-top: 12px; font-size: 16px; }
+
+  footer { border-top: 1px solid var(--line); margin-top: 70px; padding: 26px 0 34px; }
+  .foot { display: flex; align-items: center; justify-content: space-between; color: var(--dim); font-size: 13px; flex-wrap: wrap; gap: 10px; }
+  .foot a { color: var(--dim); text-decoration: none; }
+  .foot a:hover { color: var(--text); }
+
+  @media (max-width: 640px) {
+    .nav-links a:not(.btn) { display: none; }
+    header { padding-top: 64px; }
+    .stat { border-right: none; border-bottom: 1px solid var(--line); }
+  }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="grid"></div>
+
+<nav>
+  <div class="wrap nav-inner">
+    <div class="brand">
+      <!-- kitty mark -->
+      <svg viewBox="0 0 24 22" fill="#3ddc84"><path d="M2 4 L9 8.5 C10.2 7.6 11 7.2 12 7.2 C13 7.2 13.8 7.6 15 8.5 L22 4 L20.4 11.6 C20 14.6 17.4 19.5 12 19.5 C6.6 19.5 4 14.6 3.6 11.6 Z"/></svg>
+      Kitty <span class="ver">v1.1.11</span>
+    </div>
+    <div class="nav-links">
+      <a href="#status">Status</a>
+      <a href="#features">Features</a>
+      <a href="#faq">Questions</a>
+      <a class="btn" id="dl-nav" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4 19h16"/></svg>
+        Download
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <header>
+    <div class="badge"><span class="pulse"></span> status: <b id="status-badge">online</b></div>
+    <h1>The best free Roblox<br/>executor <span class="grad">on the market.</span></h1>
+    <p class="sub"><strong>No keys, no payments, no bullshit.</strong><br/>Download it, attach, run. That's the whole thing.</p>
+    <p class="slogan">free forever — <em>always will be</em></p>
+    <div class="hero-cta">
+      <a class="btn big" id="dl-hero" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4 19h16"/></svg>
+        Download for Windows
+      </a>
+      <a class="ghost" href="#status">live status</a>
+    </div>
+
+    <!-- ============ STATUS ============ -->
+    <div class="status-card" id="status">
+      <div class="status-head">
+        <span>kitty-term v1.1.11 — live status</span>
+        <span class="dot-live"><span class="pulse"></span><span id="status-word">ONLINE</span></span>
+      </div>
+      <div class="status-grid">
+        <div class="stat">
+          <div class="k">executor</div>
+          <div class="v ok" id="st-online">online</div>
+          <div class="note">goes offline when Roblox updates</div>
+        </div>
+        <div class="stat">
+          <div class="k">roblox client</div>
+          <div class="v ok" id="st-detected">detected</div>
+          <div class="note">f0ea5da9412f4e35</div>
+        </div>
+        <div class="stat">
+          <div class="k">sUNC / UNC</div>
+          <div class="v ok">100% sUNC</div>
+          <div class="note">98% UNC</div>
+        </div>
+        <div class="stat">
+          <div class="k">raknet library</div>
+          <div class="v warn">unavailable</div>
+          <div class="note">not bundled in this release</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ FEATURES ============ -->
+  <section id="features">
+    <h2 class="sec-title">what it has</h2>
+    <p class="sec-sub">the numbers, and the modes. nothing you have to pay for.</p>
+    <div class="cards four">
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
+        <h3>100% sUNC</h3>
+        <p>Fully sUNC execution. Scripts run exactly where they're supposed to.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 10l7-7 7 7"/></svg></div>
+        <h3>98% UNC</h3>
+        <p>Nearly everything works UNC too — the rare edge case is the other 2%.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 100 18 9 9 0 000-18zM3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></svg></div>
+        <h3>RakNet library</h3>
+        <p>Currently unavailable — it comes back in a future release.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM7 9l3 3-3 3M13 15h4"/></svg></div>
+        <h3>Terminal mode</h3>
+        <p>A real in-app terminal for quick commands — no editor required.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section id="faq">
+    <h2 class="sec-title">questions &amp; answers</h2>
+    <p class="sec-sub">the stuff everyone asks.</p>
+    <div class="faq">
+      <details class="qa" open>
+        <summary>Is this executor a rat? <span class="chev">+</span></summary>
+        <div class="ans">No. Kitty is not a rat, and it will never be one. No keys, no payments, no bullshit — free forever.</div>
+      </details>
+      <details class="qa">
+        <summary>Is this undetected? <span class="chev">+</span></summary>
+        <div class="ans">No executor is 100% undetected, because of Roblox's constant updates. Kitty keeps up as fast as it can — check the live status above before you rely on it.</div>
+      </details>
+      <details class="qa">
+        <summary>What if Roblox updates? <span class="chev">+</span></summary>
+        <div class="ans">Downgrade Roblox. The status card flips to offline the moment a new client breaks injection, so you'll know exactly when to do it.</div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <div class="cta-final">
+    <h2>stop paying for executors.</h2>
+    <p>Kitty is free. It will stay free. Just download it.</p>
+    <div style="margin-top:30px"><a class="btn big" id="dl-final" href="#">Download Kitty</a></div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap foot">
+    <span>Kitty Executor — free forever</span>
+    <span><a href="https://github.com/hollowthemodder/KittyExecutor">github</a> &nbsp;·&nbsp; <a href="https://github.com/hollowthemodder/KittyExecutor/releases">releases</a></span>
+  </div>
+</footer>
+
+<script>
+  // installer lives in the v1.1.9b release (kittyexc1.1.9.1) — bump this when it moves
+  const INSTALLER_URL = "https://github.com/hollowthemodder/KittyExecutor/releases/download/v1.1.9b/installer.zip";
+  document.querySelectorAll("a[href='#']").forEach(a => { if (a.id.startsWith("dl-")) a.href = INSTALLER_URL; });
+
+  // status: hardcoded for now. When wired up, compare the live Roblox version against the
+  // supported one — mismatch flips online→offline and detected→undetected
+  const STATUS = { online: true, detected: true };
+  function paintStatus() {
+    const on = document.getElementById("status-word"), ob = document.getElementById("status-badge");
+    const so = document.getElementById("st-online"), sd = document.getElementById("st-detected");
+    on.textContent = STATUS.online ? "ONLINE" : "OFFLINE";
+    ob.textContent = STATUS.online ? "online" : "offline";
+    so.textContent = STATUS.online ? "online" : "offline";
+    so.className = "v " + (STATUS.online ? "ok" : "warn");
+    sd.textContent = STATUS.detected ? "detected" : "undetected";
+    sd.className = "v " + (STATUS.detected ? "ok" : "warn");
+  }
+  paintStatus();
+</script>
+</body>
+</html>
