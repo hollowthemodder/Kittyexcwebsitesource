@@ -5,15 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Kitty — the best free Roblox executor</title>
 <meta name="description" content="Kitty is the best free Roblox executor on the market. No keys, no payments, no bullshit. Free forever." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='110' fill='%237c3aed'/%3E%3Cpath d='M397.6 157.4C379.8 123.6 350.2 97.4 314 83.9c-8.9-3.4-18.7 1.1-22.1 10-3.4 8.9 1.1 18.7 10 22.1 27.6 10.4 50 30.1 63.9 56.4 12.3 23.5 16.3 50.8 11.5 77.2-4.8 26.4-18.4 50.1-38.6 67.4-20.2 17.3-46 27-72.7 27.2s-52.6-8.7-73.4-24.8c-20.8-16.1-34.9-38.7-40.4-64.2-5.5-25.4-2.2-52 9.5-75.1 11.7-23.1 31.4-41 55.6-50.6 8.9-3.5 13.3-13.4 9.8-22.3-3.5-8.9-13.4-13.3-22.3-9.8C154.5 106.8 126.7 131.6 110 162.7c-16.7 31.1-23.5 67.1-19.3 102.7 4.2 35.6 19.3 68.3 43.1 93.6 23.8 25.3 55.2 41.5 89.6 45.5 34.4 4 69.4-3.4 98.7-21.2 29.3-17.8 51.5-44.5 63.6-76.3 12.1-31.8 13.3-67.1 3.5-99.6z' fill='%23ffffff'/%3E%3C/svg%3E">
 <style>
   :root {
-    --bg: #0a0c0b;
-    --panel: #101412;
-    --line: #1d2420;
+    --bg: #0c0a10;
+    --panel: #14101c;
+    --line: #251d33;
+    --purple: #8b5cf6;
+    --purple-glow: rgba(139, 92, 246, 0.15);
     --green: #3ddc84;
     --red: #ff5a63;
-    --text: #e8ede9;
-    --dim: #8b968f;
+    --text: #f3f0f7;
+    --dim: #9ca3af;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -23,20 +26,20 @@
     font-family: "Segoe UI Variable Text", Inter, Segoe UI, system-ui, sans-serif;
     overflow-x: hidden;
   }
-  ::selection { background: rgba(61,220,132,.25); }
+  ::selection { background: rgba(139,92,246,.3); }
 
   /* ambient glow + faint grid */
   .glow {
     position: fixed; inset: 0; pointer-events: none; z-index: 0;
     background:
-      radial-gradient(900px 480px at 50% -10%, rgba(255,90,99,.10), transparent 70%),
-      radial-gradient(700px 400px at 85% 110%, rgba(255,90,99,.05), transparent 70%);
+      radial-gradient(900px 480px at 50% -10%, rgba(139,92,246,.15), transparent 70%),
+      radial-gradient(700px 400px at 85% 110%, rgba(61,220,132,.05), transparent 70%);
   }
   .grid {
-    position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .5;
+    position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .4;
     background-image:
-      linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+      linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
     background-size: 44px 44px;
     mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 80%);
   }
@@ -47,13 +50,13 @@
   nav {
     position: sticky; top: 0; z-index: 10;
     backdrop-filter: blur(14px);
-    background: rgba(10,12,11,.72);
+    background: rgba(12,10,16,.78);
     border-bottom: 1px solid var(--line);
   }
-  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 60px; }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: -.02em; }
-  .brand svg { width: 22px; height: 20px; }
-  .brand .ver { color: var(--dim); font-weight: 500; font-size: 12.5px; margin-left: 2px; }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+  .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 18px; letter-spacing: -.02em; }
+  .brand img { width: 32px; height: 32px; border-radius: 8px; }
+  .brand .ver { color: var(--dim); font-weight: 500; font-size: 12.5px; margin-left: 2px; background: rgba(139,92,246,.12); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(139,92,246,0.25); color: #c4b5fd; }
   .nav-links { display: flex; align-items: center; gap: 26px; }
   .nav-links a { color: var(--dim); text-decoration: none; font-size: 14px; transition: color .15s; }
   .nav-links a:hover { color: var(--text); }
@@ -61,29 +64,29 @@
   /* ---------- buttons ---------- */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 9px;
-    background: var(--green); color: #08130c; font-weight: 700; font-size: 14.5px;
-    padding: 10px 20px; border-radius: 9px; text-decoration: none;
+    background: var(--purple); color: #ffffff; font-weight: 700; font-size: 14.5px;
+    padding: 10px 20px; border-radius: 10px; text-decoration: none;
     transition: transform .12s ease, box-shadow .12s ease, filter .12s;
-    box-shadow: 0 0 0 rgba(61,220,132,0);
+    box-shadow: 0 0 0 rgba(139,92,246,0);
   }
-  .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(61,220,132,.28); filter: brightness(1.05); }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(139,92,246,.35); filter: brightness(1.1); }
   .btn:active { transform: translateY(0); }
-  .btn.big { font-size: 16px; padding: 14px 30px; border-radius: 11px; }
+  .btn.big { font-size: 16px; padding: 14px 30px; border-radius: 12px; }
   .btn svg { width: 17px; height: 17px; }
 
   /* ---------- hero ---------- */
   header { padding: 96px 0 64px; text-align: center; }
   .badge {
     display: inline-flex; align-items: center; gap: 8px;
-    border: 1px solid var(--line); background: rgba(16,20,18,.7);
+    border: 1px solid var(--line); background: rgba(20,16,28,.8);
     color: var(--dim); font-size: 13px; padding: 6px 14px; border-radius: 999px; margin-bottom: 28px;
   }
-  .badge b { color: var(--red); font-weight: 600; }
+  .badge b { color: var(--green); font-weight: 600; }
   h1 {
     font-size: clamp(38px, 6.4vw, 68px); line-height: 1.04; letter-spacing: -.035em; font-weight: 800;
   }
   h1 .grad {
-    background: linear-gradient(92deg, var(--green), #7cebb4 55%, var(--red));
+    background: linear-gradient(92deg, #c4b5fd, var(--purple) 55%, #ec4899);
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   .sub { margin: 22px auto 0; max-width: 620px; color: var(--dim); font-size: 17.5px; line-height: 1.6; }
@@ -93,82 +96,84 @@
   .hero-cta { margin-top: 38px; display: flex; gap: 14px; justify-content: center; align-items: center; flex-wrap: wrap; }
   .ghost {
     color: var(--dim); text-decoration: none; font-size: 14px; border: 1px solid var(--line);
-    padding: 13px 22px; border-radius: 11px; transition: color .15s, border-color .15s;
+    padding: 13px 22px; border-radius: 12px; transition: color .15s, border-color .15s, background .15s;
+    background: rgba(20,16,28,.4);
   }
-  .ghost:hover { color: var(--text); border-color: #2c3630; }
+  .ghost:hover { color: var(--text); border-color: rgba(139,92,246,0.4); background: rgba(20,16,28,.8); }
   .ghost svg { vertical-align: -3px; margin-right: 2px; }
   .nav-discord { padding: 9px 12px; }
 
   /* ---------- status strip ---------- */
   .status-card {
-    margin-top: 70px; border: 1px solid var(--line); border-radius: 14px;
-    background: linear-gradient(180deg, rgba(16,20,18,.9), rgba(13,16,14,.9));
-    overflow: hidden;
+    margin-top: 70px; border: 1px solid var(--line); border-radius: 16px;
+    background: linear-gradient(180deg, rgba(20,16,28,.9), rgba(15,12,22,.9));
+    overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
   }
   .status-head {
     display: flex; align-items: center; justify-content: space-between;
     padding: 14px 20px; border-bottom: 1px solid var(--line);
     font-family: Consolas, "Cascadia Mono", monospace; font-size: 13px; color: var(--dim);
   }
-  .status-head .dot-live { display: inline-flex; align-items: center; gap: 8px; color: var(--red); font-weight: 600; }
-  .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--red); position: relative; }
+  .status-head .dot-live { display: inline-flex; align-items: center; gap: 8px; color: var(--green); font-weight: 600; }
+  .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--green); position: relative; }
   .pulse::after {
     content: ""; position: absolute; inset: -4px; border-radius: 50%;
-    border: 1.5px solid var(--red); opacity: .7; animation: pulse 1.8s ease-out infinite;
+    border: 1.5px solid var(--green); opacity: .7; animation: pulse 1.8s ease-out infinite;
   }
   @keyframes pulse { 0% { transform: scale(.6); opacity: .8; } 100% { transform: scale(1.5); opacity: 0; } }
   .status-grid {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   }
-  .stat { padding: 20px; border-right: 1px solid var(--line); font-family: Consolas, "Cascadia Mono", monospace; }
+  .stat { padding: 20px; border-right: 1px solid var(--line); font-family: Consolas, "Cascadia Mono", monospace; text-align: left; }
   .stat:last-child { border-right: none; }
   .stat .k { font-size: 11.5px; text-transform: uppercase; letter-spacing: .12em; color: var(--dim); margin-bottom: 9px; }
   .stat .v { font-size: 19px; font-weight: 700; }
   .stat .v.ok { color: var(--green); }
-  .stat .v.warn { color: var(--red); }
+  .stat .v.warn { color: #ffd166; }
   .stat .note { font-size: 12px; color: var(--dim); margin-top: 5px; }
 
   /* ---------- features ---------- */
   section { padding: 84px 0 0; }
   .sec-title { font-size: 30px; letter-spacing: -.03em; font-weight: 800; text-align: center; }
   .sec-sub { text-align: center; color: var(--dim); margin-top: 10px; font-size: 15.5px; }
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 40px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 40px; }
   .card {
-    border: 1px solid var(--line); border-radius: 13px; background: rgba(16,20,18,.55);
-    padding: 22px; transition: transform .15s ease, border-color .15s ease, background .15s;
+    border: 1px solid var(--line); border-radius: 16px; background: rgba(20,16,28,.5);
+    padding: 26px; transition: transform .15s ease, border-color .15s ease, background .15s;
+    backdrop-filter: blur(10px); text-align: left;
   }
-  .card:hover { transform: translateY(-3px); border-color: #2c3a31; background: rgba(18,23,20,.75); }
+  .card:hover { transform: translateY(-4px); border-color: rgba(139,92,246,0.4); background: rgba(25,20,35,.8); }
   .cards.four { grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); }
   .card .ico {
-    width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center;
-    background: rgba(61,220,132,.10); border: 1px solid rgba(61,220,132,.22); margin-bottom: 15px;
+    width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    background: rgba(139,92,246,.12); border: 1px solid rgba(139,92,246,0.3); margin-bottom: 18px;
   }
-  .card .ico svg { width: 18px; height: 18px; stroke: var(--green); fill: none; stroke-width: 1.8; }
-  .card h3 { font-size: 16px; letter-spacing: -.01em; margin-bottom: 7px; }
+  .card .ico svg { width: 20px; height: 20px; stroke: #c4b5fd; fill: none; stroke-width: 2; }
+  .card h3 { font-size: 17px; letter-spacing: -.01em; margin-bottom: 8px; font-weight: 700; }
   .card p { color: var(--dim); font-size: 14px; line-height: 1.55; }
 
   /* ---------- faq ---------- */
-  .faq { max-width: 720px; margin: 40px auto 0; display: flex; flex-direction: column; gap: 10px; }
+  .faq { max-width: 720px; margin: 40px auto 0; display: flex; flex-direction: column; gap: 12px; text-align: left; }
   .qa {
-    border: 1px solid var(--line); border-radius: 12px; background: rgba(16,20,18,.55);
-    overflow: hidden; transition: border-color .15s;
+    border: 1px solid var(--line); border-radius: 14px; background: rgba(20,16,28,.5);
+    overflow: hidden; transition: border-color .15s, background .15s;
   }
-  .qa:hover { border-color: #2c3a31; }
+  .qa:hover { border-color: rgba(139,92,246,0.4); background: rgba(25,20,35,.7); }
   .qa summary {
-    list-style: none; cursor: pointer; padding: 17px 20px;
+    list-style: none; cursor: pointer; padding: 18px 22px;
     display: flex; align-items: center; justify-content: space-between; gap: 14px;
     font-weight: 600; font-size: 15.5px; letter-spacing: -.01em;
   }
   .qa summary::-webkit-details-marker { display: none; }
   .qa summary .chev {
-    flex-shrink: 0; width: 22px; height: 22px; border-radius: 7px;
-    display: flex; align-items: center; justify-content: space-between;
-    background: rgba(61,220,132,.08); border: 1px solid rgba(61,220,132,.2);
-    color: var(--green); font-size: 15px; line-height: 1; transition: transform .2s ease;
+    flex-shrink: 0; width: 24px; height: 24px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(139,92,246,.1); border: 1px solid rgba(139,92,246,0.25);
+    color: #c4b5fd; font-size: 15px; line-height: 1; transition: transform .2s ease;
   }
   .qa[open] summary .chev { transform: rotate(45deg); }
   .qa .ans {
-    padding: 0 20px 17px; color: var(--dim); font-size: 14.5px; line-height: 1.6;
+    padding: 0 22px 18px; color: var(--dim); font-size: 14.5px; line-height: 1.6;
     animation: faqIn .22s ease;
   }
   .qa .ans strong { color: var(--text); font-weight: 600; }
@@ -181,7 +186,7 @@
 
   footer { border-top: 1px solid var(--line); margin-top: 70px; padding: 26px 0 34px; }
   .foot { display: flex; align-items: center; justify-content: space-between; color: var(--dim); font-size: 13px; flex-wrap: wrap; gap: 10px; }
-  .foot a { color: var(--dim); text-decoration: none; }
+  .foot a { color: var(--dim); text-decoration: none; transition: color .15s; }
   .foot a:hover { color: var(--text); }
 
   @media (max-width: 640px) {
@@ -198,8 +203,8 @@
 <nav>
   <div class="wrap nav-inner">
     <div class="brand">
-      <!-- kitty mark -->
-      <svg viewBox="0 0 24 22" fill="#3ddc84"><path d="M2 4 L9 8.5 C10.2 7.6 11 7.2 12 7.2 C13 7.2 13.8 7.6 15 8.5 L22 4 L20.4 11.6 C20 14.6 17.4 19.5 12 19.5 C6.6 19.5 4 14.6 3.6 11.6 Z"/></svg>
+      <!-- exact purple sodium/kitty icon match -->
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='110' fill='%237c3aed'/%3E%3Cpath d='M397.6 157.4C379.8 123.6 350.2 97.4 314 83.9c-8.9-3.4-18.7 1.1-22.1 10-3.4 8.9 1.1 18.7 10 22.1 27.6 10.4 50 30.1 63.9 56.4 12.3 23.5 16.3 50.8 11.5 77.2-4.8 26.4-18.4 50.1-38.6 67.4-20.2 17.3-46 27-72.7 27.2s-52.6-8.7-73.4-24.8c-20.8-16.1-34.9-38.7-40.4-64.2-5.5-25.4-2.2-52 9.5-75.1 11.7-23.1 31.4-41 55.6-50.6 8.9-3.5 13.3-13.4 9.8-22.3-3.5-8.9-13.4-13.3-22.3-9.8C154.5 106.8 126.7 131.6 110 162.7c-16.7 31.1-23.5 67.1-19.3 102.7 4.2 35.6 19.3 68.3 43.1 93.6 23.8 25.3 55.2 41.5 89.6 45.5 34.4 4 69.4-3.4 98.7-21.2 29.3-17.8 51.5-44.5 63.6-76.3 12.1-31.8 13.3-67.1 3.5-99.6z' fill='%23ffffff'/%3E%3C/svg%3E" alt="Kitty Icon">
       Kitty <span class="ver">v1.1.11</span>
     </div>
     <div class="nav-links">
@@ -219,7 +224,7 @@
 
 <div class="wrap">
   <header>
-    <div class="badge"><span class="pulse"></span> status: <b id="status-badge">offline</b></div>
+    <div class="badge"><span class="pulse"></span> status: <b id="status-badge">online</b></div>
     <h1>The best free Roblox<br/>executor <span class="grad">on the market.</span></h1>
     <p class="sub"><strong>No keys, no payments, no bullshit.</strong><br/>Download it, attach, run. That's the whole thing.</p>
     <p class="slogan">free forever — <em>always will be</em></p>
@@ -239,12 +244,12 @@
     <div class="status-card" id="status">
       <div class="status-head">
         <span>kitty-term v1.1.11 — live status</span>
-        <span class="dot-live"><span class="pulse"></span><span id="status-word">OFFLINE</span></span>
+        <span class="dot-live"><span class="pulse"></span><span id="status-word">ONLINE</span></span>
       </div>
       <div class="status-grid">
         <div class="stat">
           <div class="k">executor</div>
-          <div class="v warn" id="st-online">offline</div>
+          <div class="v ok" id="st-online">online</div>
           <div class="note">goes offline when Roblox updates</div>
         </div>
         <div class="stat">
@@ -330,11 +335,10 @@
 </footer>
 
 <script>
-  // installer lives in the v1.1.9b release (kittyexc1.1.9.1) — bump this when it moves
   const INSTALLER_URL = "https://github.com/hollowthemodder/KittyExecutor/releases/download/v1.1.9b/installer.zip";
   document.querySelectorAll("a[href='#']").forEach(a => { if (a.id.startsWith("dl-")) a.href = INSTALLER_URL; });
 
-  const STATUS = { online: false, detected: true };
+  const STATUS = { online: true, detected: true };
   function paintStatus() {
     const on = document.getElementById("status-word"), ob = document.getElementById("status-badge");
     const so = document.getElementById("st-online"), sd = document.getElementById("st-detected");
